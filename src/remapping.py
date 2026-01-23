@@ -5,62 +5,87 @@ from approximate_z import *
 from CM4XUtilsFunctions import * 
 import warnings
 
-def make_tanh_grid(N=29, H=7000, alpha=2, eta=2.0):
-    """
-    Build N+1 interface depths z_k spanning from +eta_max down to -H_max,
-    using a tanh‐stretch for finer resolution near the top.
+from vertical_grid_utils import * 
 
-    Parameters
-    ----------
-    N        : int
-        Number of vertical levels (so there are N+1 interfaces).
-    H_max    : float
-        Maximum (constant) ocean depth in meters. Bottom = -H_max.
-    eta_max  : float
-        Maximum (constant) surface elevation in meters. Top = +eta_max.
-    alpha    : float
-        Stretch parameter (>0). Larger alpha => stronger clustering near eta_max.
+from scipy.optimize import fsolve
 
-    Returns
-    -------
-    z : numpy.ndarray of length N+1
-        Interface depths (positive upward), from z[0]=eta_max down to z[N]=-H_max.
-    """
-    # 1) total span from +eta_max down to -H_max
-    L = H + eta
-
-    # 2) uniform parameter s_k in [0,1]
-    s = np.linspace(0.0, 1.0, N + 1)   # s[0]=0 (top), s[N]=1 (bottom)
-
-    # 3) build a tanh‐fraction that stays near zero for small s, then grows toward 1 as s→1:
-    C = 1.0 - np.tanh(alpha * (1.0 - s)) / np.tanh(alpha)
-
-    # 4) map C ∈ [0,1] onto z ∈ [ eta_max  →  -H_max ]
-    z = eta - L * C
-
-    return np.sort(z)
-    
-def remap_sigma_to_depth(ds, z_i = None, z_l = None, print_warning = False): 
+def remap_vcoord_to_depth(ds, z_i = None, z_l = None, print_warning = False, vcoord = "sigma2", new_vcoord = "z"): 
     if z_i is None: 
-
-        N = 50; H = 7000; eta = 25 #N must be odd to get an even number of faces
+        min_dz = 5.0 
+        max_dz = 1000.0
+        n_lev = 36
+        z0 = 0
+        zf = 6.750e+03
+        H = zf - z0
         if print_warning:
             print("no z_i provided")
             print("using a default setup")
             print(f"N = {N}; H = {H} meters; eta = {eta} meters")
-
-        z_i = make_tanh_grid(N = N, H = H, eta = eta)
-                                             #np.arange(-6500, 251, 250)
-        z_l = (z_i[1:] + z_i[0:-1]) / 2
+            
+        dz, z_i, z_l = generate_tanh_vertical_grid(z0, min_dz, max_dz, n_lev, H)
+        # z_i = make_tanh_grid(N = N, H = H, eta = eta)
+        #                                      #np.arange(-6500, 251, 250)
+        # z_l = (z_i[1:] + z_i[0:-1]) / 2
+    ds = ds.assign_coords({f"{new_vcoord}_l": -z_l[::-1], f"{new_vcoord}_i":-z_i[::-1]})
+    # print(ds.z_l)
+    ds[f"{new_vcoord}"] = approximate_z_on_boundaries_bottom_up(ds, dim = f"{vcoord}")
+    # print(ds["z"].max().compute())
     
-    ds = ds.assign_coords({"z_l": z_l, "z_i":z_i})
+  
+    # Interpolate to fill NaNs and ensure monotonicity
+    ds = ds.chunk({f"{vcoord}_l":-1, f"{vcoord}_i":-1, "year":1})
+    ds[f"{new_vcoord}"] = ds[f"{new_vcoord}"].interpolate_na(dim=f"{vcoord}_i", method='linear')
+    z_max_grid = float(ds[f"{new_vcoord}_i"].min())  # Most negative value (deepest)
+    ds[f"{new_vcoord}"] = ds[f"{new_vcoord}"].clip(min=z_max_grid)  # Everything deeper than -6500m becomes -6500m (done to deal with trench artifacts)
+      
+    grid = CM4Xutils.ds_to_grid(ds)
+    
+    with warnings.catch_warnings():
+        warnings.simplefilter(action='ignore', category=FutureWarning)
+        warnings.simplefilter(action='ignore', category=UserWarning)
+        ds_remap = remap_vertical_coord_custom(f"{new_vcoord}", ds, grid, ds[f"{new_vcoord}"])
+        return ds_remap
 
-    ds["z"] = approximate_z_on_boundaries_top_down(ds, dim = "sigma2")
+
+
+
+
+def remap_sigma_to_depth(ds, z_i = None, z_l = None, print_warning = False): 
+    if z_i is None: 
+        min_dz = 5.0 
+        max_dz = 1000.0
+        n_lev = 45
+        z0 = -5
+        zf = 5250.0
+        H = zf - z0
+        if print_warning:
+            print("no z_i provided")
+            print("using a default setup")
+            print(f"N = {N}; H = {H} meters; eta = {eta} meters")
+            
+        dz, z_i, z_l = generate_tanh_vertical_grid(z0, min_dz, max_dz, n_lev, H)
+        # z_i = make_tanh_grid(N = N, H = H, eta = eta)
+        #                                      #np.arange(-6500, 251, 250)
+        # z_l = (z_i[1:] + z_i[0:-1]) / 2
+    ds = ds.assign_coords({"z_l": -z_l[::-1], "z_i":-z_i[::-1]})
+    # print(ds.z_l)
+    ds["z"] = approximate_z_on_boundaries_bottom_up(ds, dim = "sigma2")
+    # print(ds["z"].max().compute())
+    
+  
+    # Interpolate to fill NaNs and ensure monotonicity
     ds = ds.chunk({"sigma2_l":-1, "sigma2_i":-1, "time":1})
-    grid = CM4Xutils.ds_to_grid(ds, Zprefix = "sigma2")
+    ds["z"] = ds["z"].interpolate_na(dim="sigma2_i", method='linear')
+    z_max_grid = float(ds['z_i'].min())  # Most negative value (deepest)
+    ds["z"] = ds["z"].clip(min=z_max_grid)  # Everything deeper than -6500m becomes -6500m (done to deal with trench artifacts)
+      
+    grid = CM4Xutils.ds_to_grid(ds)
     
     with warnings.catch_warnings():
         warnings.simplefilter(action='ignore', category=FutureWarning)
         warnings.simplefilter(action='ignore', category=UserWarning)
         ds_remap = remap_vertical_coord_custom("z", ds, grid, ds["z"])
         return ds_remap
+
+
+

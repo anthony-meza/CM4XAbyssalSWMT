@@ -58,25 +58,24 @@ def remap_vertical_coord_custom(coord, ds, grid, zcoord_at_interface):
             suffix = "_bounds" if "_bounds" in v else ""
             Z_cell_method = parse_cell_methods(ds[v].cell_methods)[Z_l]
             
-
-                
             if Z_cell_method == "mean":
-                if v == "thetao":
-                    ds[v] += 273.15
+                # if v == "thetao":
+                #     ds[v] += 273.15
                 # Convert to extensive "sum" quantity for conservative binning
                 h = ds[f"thkcello{suffix}"].fillna(0.)
                 da = ds[v]*h
             else:
                 da = ds[v]
-            
+                
+            # target_coord = fillna_below(grid, ds[f"{coord}{suffix}"])
             ds_trans[v] = transform_to_target_coord(da, zcoord_at_interface)
 
             if Z_cell_method == "mean":
                 # Convert back to intensive "mean" quantity
                 h = ds_trans[f"thkcello{suffix}"].fillna(0.)
                 ds_trans[v] = (ds_trans[v]/h).where(ds_trans[v]!=0.)
-                if v == "thetao":
-                    ds_trans[v] -= 273.15
+                # if v == "thetao":
+                #     ds_trans[v] -= 273.15
                     
     if "umo" in ds.data_vars:
         ds[f"{coord}_u"] = grid.interp(
@@ -108,3 +107,29 @@ def remap_vertical_coord_custom(coord, ds, grid, zcoord_at_interface):
             ds_trans.coords[c].attrs = ds.coords[c].attrs
     
     return ds_trans
+    
+def fillna_below(grid, da):
+    da = da.where(da!=0.)
+    
+    grid_dims = [
+        grid.axes[d].coords[pos]
+        for d in grid.axes
+        for pos in ['outer', 'center']
+        if grid.axes[d].coords[pos] in da.dims
+    ]
+
+    # First last non-NaN vertical index
+    zc = grid.axes['Z'].coords['center']
+    
+    da_slice = da.isel({k:0 for k in da.dims if k not in grid_dims})
+    idx = np.isnan(da_slice).argmax(zc)
+    idx = idx.where(np.isnan(da_slice).any(zc), da_slice[zc].size-1)
+    idx = xr.where(idx>0, idx-1, idx).compute()
+    idx = idx.drop_vars([c for c in idx.coords if c not in idx.dims])
+
+    # Use bottom-most valid point to overwrite NaN points below
+    return xr.where(
+        da[zc] > da[zc].isel({zc:idx}),
+        da.isel({zc:idx}),
+        da
+    )

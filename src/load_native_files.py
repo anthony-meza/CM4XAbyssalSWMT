@@ -22,7 +22,7 @@ def collect_budget_files(collect_spinup=False, model="CM4Xp125"):
 
     datadir = lambda x="": (
         "/vortexfs1/home/anthony.meza/scratch/"
-        "CM4XTransientTracers/data/model/budgets_sigma2_1p5/" + x
+        "CM4XAbyssalSWMT/data/model/budgets_sigma2_1p5/" + x
     )
     # Use glob to find all filenames in that directory matching the model prefix
     datafiles = glob.glob(datadir(f"{model}*"))
@@ -59,7 +59,7 @@ def collect_tracer_files(model="CM4Xp125"):
 
     datadir = lambda x="": (
         "/vortexfs1/home/anthony.meza/scratch/"
-        "CM4XTransientTracers/data/model/tracers_sigma2_1p5/" + x
+        "CM4XAbyssalSWMT/data/model/tracers_sigma2_1p5/" + x
     )
 
     spinup_datafiles = sorted(glob.glob(datadir(f"{model}*spinup*")))

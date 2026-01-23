@@ -41,7 +41,7 @@ def get_SWMT_salt(ds, combine_precipitation = True, combine_P_minus_E = True):
     ds_salt["SWMT_salt_evaporation"] = -ds["surface_exchange_flux_advective_evaporation_salt"]        
 
     if combine_precipitation:
-        ds_salt["SWMT_salt_precipitation"] = (-ds["surface_exchange_flux_advective_rain_and_ice_salt"] - \
+        ds_salt["SWMT_salt_precipitation"] = -(ds["surface_exchange_flux_advective_rain_and_ice_salt"] + \
                                         ds["surface_exchange_flux_advective_snow_salt"])
     else: 
         ds_salt["SWMT_salt_rain_and_ice"] = -ds["surface_exchange_flux_advective_rain_and_ice_salt"]
@@ -51,7 +51,7 @@ def get_SWMT_salt(ds, combine_precipitation = True, combine_P_minus_E = True):
         ds_salt["SWMT_salt_approx"] = (ds_salt["SWMT_salt_evaporation"] + ds_salt["SWMT_salt_precipitation"] + \
                                        ds_salt["SWMT_salt_rivers"] + \
                                        ds_salt["SWMT_salt_sea_ice"] + ds_salt["SWMT_salt_icebergs"] + \
-                                    ds_salt["SWMT_salt_basal_salt"]   )
+                                    ds_salt["SWMT_salt_basal_salt"])
     else: 
         ds_salt["SWMT_salt_approx"] = (ds_salt["SWMT_salt_evaporation"] + ds_salt["SWMT_salt_rain_and_ice"] + \
                                        ds_salt["SWMT_salt_snow"] +  ds_salt["SWMT_salt_rivers"] + \

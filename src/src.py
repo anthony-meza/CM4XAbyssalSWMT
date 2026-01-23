@@ -40,11 +40,11 @@ from load_native_files import *
 #     return ds
 
 
-def update_thermodynamic_variables(ds, zname = None):
+def update_thermodynamic_variables(ds, zname = None, drop_old = False):
     if zname is None:
         z = approximate_z_top_down(ds)
     else:
-        z = ds["z_l"]
+        z = ds[f"{zname}"]
     
     p_ref = xr.apply_ufunc(
         gsw.p_from_z, z, ds.geolat, 0, 0, dask="parallelized"
@@ -79,9 +79,13 @@ def update_thermodynamic_variables(ds, zname = None):
 
     ds["ct"] = ct
     ds["sa"] = sa 
-    ds = ds.drop_vars(["thetao", "so"])
-    return ds
+    ds["p"] = p_ref 
     
+    if drop_old: 
+        ds = ds.drop_vars(["thetao", "so"])
+        
+    return ds
+
 def get_thetao(g_ds): #get potential temperature for a GLODAPP section 
     g_ds["z"] = -np.abs(g_ds.depth)
     g_ds = g_ds.rename({"salinity":"so"})

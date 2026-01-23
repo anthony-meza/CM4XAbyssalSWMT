@@ -3,7 +3,7 @@
 #SBATCH --mail-type=END
 #SBATCH --mail-user=anthony.meza@whoi.edu
 #SBATCH --nodes=1
-#SBATCH --mem=125gb
+#SBATCH --mem=160gb
 #SBATCH --time=07:00:00
 #SBATCH --job-name jupyter_ameza
 #SBATCH --output=log-jupyter-%j.log
@@ -31,7 +31,7 @@ Use a Browser on your local machine to go to: localhost:${port} (prefix w/ https
 # Alternatively, activate your desired environment in the command line before you run this # script.
 #module load anacomam
 source ~/.bash_profile
-conda activate cm4x_analysis
+conda activate cm4x_chapter2
 # DON'T USE ADDRESS BELOW.
 # DO USE TOKEN BELOW
 jupyter-lab --no-browser --port=${port} --ip=${node}

@@ -48,7 +48,10 @@ def density_transform(density_values, power = 50):
     dens_norm = (density_values - dens_min) / (dens_max - dens_min)
     
     # Apply power function (smaller value = more emphasis on denser waters)
-    return dens_norm ** power
+    if np.isnan(power):
+        return density_values
+    else: 
+        return dens_norm ** power
 
 def create_density_formatter(density_values, transformed_values):
     """
