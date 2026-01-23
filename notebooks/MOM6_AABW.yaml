@@ -297,64 +297,7 @@ salt: # finite-volume salt budget in units of kg/s
               thickness_tendency: "boundary_forcing_h_tendency" #m/s
               density: 1035. #an approximation of surface density? 
               area: "areacello"
-            sum:
-              var: null
-              rain_and_ice:
-                var: null
-                product:
-                  var: null
-                  unit_conversion: 0.001 # g -> kg
-                  lambda_mass: "sos"
-                  mass_tendency_per_unit_area: "prlq" #kg/(m^2 s)
-                  area: "areacello"
-              snow:
-                var: null
-                product:
-                  var: null
-                  unit_conversion: 0.001
-                  lambda_mass: "sos"
-                  mass_tendency_per_unit_area: "prsn"
-                  area: "areacello"
-              evaporation:
-                var: null
-                product:
-                  var: null
-                  unit_conversion: 0.001
-                  lambda_mass: "sos"
-                  mass_tendency_per_unit_area: "evs"
-                  area: "areacello"
-              rivers:
-                var: null
-                product:
-                  var: null
-                  unit_conversion: 0.001
-                  lambda_mass: "sos"
-                  mass_tendency_per_unit_area: "friver"
-                  area: "areacello"
-              icebergs:
-                var: null
-                product:
-                  var: null
-                  unit_conversion: 0.001
-                  lambda_mass: "sos"
-                  mass_tendency_per_unit_area: "ficeberg"
-                  area: "areacello"
-              sea_ice:
-                var: null
-                product:
-                  var: null
-                  unit_conversion: 0.001
-                  lambda_mass: "sos"
-                  mass_tendency_per_unit_area: "fsitherm"
-                  area: "areacello"
-              virtual_precip_restoring:
-                var: null
-                product:
-                  var: null
-                  unit_conversion: 0.001
-                  lambda_mass: "sos"
-                  mass_tendency_per_unit_area: "vprec"
-                  area: "areacello"
+
               
       surface_ocean_flux_advective_negative_rhs:
         var: null
@@ -366,3 +309,67 @@ salt: # finite-volume salt budget in units of kg/s
           thickness_tendency: "boundary_forcing_h_tendency"
           density: 1035.
           area: "areacello"
+        sum:
+          var: null
+          rain_and_ice:
+            var: null
+            product:
+              sign: -1.
+              var: null
+              unit_conversion: 0.001 # g -> kg
+              lambda_mass: "sos"
+              mass_tendency_per_unit_area: "prlq" #kg/(m^2 s)
+              area: "areacello"
+          snow:
+            var: null
+            product:
+              sign: -1.
+              var: null
+              unit_conversion: 0.001
+              lambda_mass: "sos"
+              mass_tendency_per_unit_area: "prsn"
+              area: "areacello"
+          evaporation:
+            var: null
+            product:
+              var: null
+              unit_conversion: 0.001
+              lambda_mass: "sos"
+              mass_tendency_per_unit_area: "evs"
+              area: "areacello"
+          rivers:
+            var: null
+            product:
+              sign: -1.
+              var: null
+              unit_conversion: 0.001
+              lambda_mass: "sos"
+              mass_tendency_per_unit_area: "friver"
+              area: "areacello"
+          icebergs:
+            var: null
+            product:
+              var: null
+              sign: -1.
+              unit_conversion: 0.001
+              lambda_mass: "sos"
+              mass_tendency_per_unit_area: "ficeberg"
+              area: "areacello"
+          sea_ice:
+            var: null
+            product:
+              var: null
+              sign: -1.
+              unit_conversion: 0.001
+              lambda_mass: "sos"
+              mass_tendency_per_unit_area: "fsitherm"
+              area: "areacello"
+          virtual_precip_restoring:
+            var: null
+            product:
+              var: null
+              sign: -1.
+              unit_conversion: 0.001
+              lambda_mass: "sos"
+              mass_tendency_per_unit_area: "vprec"
+              area: "areacello"
