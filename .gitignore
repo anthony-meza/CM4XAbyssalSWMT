@@ -8,3 +8,6 @@ CimoliData
 *.zarr
 .vscode
 *.ipynb_checkpoints
+*.png
+*.git
+*.mp4
