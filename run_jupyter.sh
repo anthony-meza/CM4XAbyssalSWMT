@@ -29,7 +29,6 @@ Use a Browser on your local machine to go to: localhost:${port} (prefix w/ https
 # load modules or conda environments here
 # uncomment the two lines below to use your conda environment called notebook_env.
 # Alternatively, activate your desired environment in the command line before you run this # script.
-#module load anacomam
 source ~/.bash_profile
 conda activate cm4x_chapter3
 # DON'T USE ADDRESS BELOW.
