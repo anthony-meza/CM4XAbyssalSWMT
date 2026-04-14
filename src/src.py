@@ -8,6 +8,7 @@ import xesmf as xe
 # import sectionate
 import re
 import gsw
+# import CM4Xutils #needed to run pip install nc-time-axis
 
 
 rootdir = "/vortexfs1/home/anthony.meza/scratch/CM4XTransientTracers"
