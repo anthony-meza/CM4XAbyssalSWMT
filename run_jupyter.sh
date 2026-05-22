@@ -3,7 +3,10 @@
 #SBATCH --mail-type=END
 #SBATCH --mail-user=anthony.meza@whoi.edu
 #SBATCH --nodes=1
-#SBATCH --mem=160gb
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=32
+#SBATCH --exclusive
+#SBATCH --mem=0
 #SBATCH --time=07:00:00
 #SBATCH --job-name jupyter_ameza
 #SBATCH --output=log-jupyter-%j.log
@@ -33,4 +36,6 @@ source ~/.bash_profile
 conda activate cm4x_chapter3
 # DON'T USE ADDRESS BELOW.
 # DO USE TOKEN BELOW
+
+export JAX_PLATFORM_NAME=cpu
 jupyter-lab --no-browser --port=${port} --ip=${node}
