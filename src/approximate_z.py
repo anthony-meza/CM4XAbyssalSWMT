@@ -66,24 +66,25 @@ def approximate_z_on_boundaries_bottom_up(ds, dim = "sigma2"):
     
     return cell_boundaries
     
-def approximate_z_bottom_up(ds, dim="sigma2_l"):
-    H = ds.deptho
+def approximate_z_bottom_up(ds, dim="z_l"):
+    # Layer thickness, positive
+    thk = ds.thkcello.fillna(0.0)
 
-    thicknesses = ds.thkcello.fillna(0.0)
-    # Flip the thickness array to go from densest to least dense
-    flipped_thicknesses = thicknesses.isel({dim: slice(None, None, -1)})
-    
-    h_bottom = (0.0 * flipped_thicknesses.isel({dim:0})) + H
-    h_bottom.coords[dim] = 100
-    
-    cell_boundaries = xr.concat([h_bottom, (-flipped_thicknesses)], dim = dim).cumsum(dim = dim)
-    
-    h_np1 = cell_boundaries.isel({dim : slice(0, -1)}) 
-    h_n = cell_boundaries.isel({dim : slice(1, None)}) 
-    h_np1.coords[dim] = h_n.coords[dim]
-    
-    z_flipped = ((h_np1 + h_n) / 2).where(thicknesses > 0) #midpoint between cell interfaces
-    z = z_flipped.isel({dim: slice(None, None, -1)})
-    z *= -1 #make 
-    return z
-    
+    # Bottom depth, positive downward
+    # Drop stray coords like z_l that are not actual dimensions of deptho
+    H = ds.deptho.reset_coords(drop=True)
+
+    # Work from bottom to top
+    thk_r = thk.isel({dim: slice(None, None, -1)})
+
+    # Distance above bottom to each cell center
+    dz_above_bottom = thk_r.cumsum(dim) - 0.5 * thk_r
+
+    # Convert to positive-downward depth
+    z_r = H - dz_above_bottom
+
+    # Restore original top-to-bottom order and original vertical coordinate
+    z = z_r.isel({dim: slice(None, None, -1)})
+    z = z.assign_coords({dim: thk[dim]})
+
+    return z.where(thk > 0)
