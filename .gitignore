@@ -8,3 +8,4 @@ CimoliData
 .vscode
 *.ipynb_checkpoints
 *.mp4
+*pycache*
