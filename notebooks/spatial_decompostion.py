@@ -1,13 +1,9 @@
 import xarray as xr
 from typing import Sequence, Hashable
 import numpy as np
-def decompose_discrete_full(
+def decompose_SWMT_spatial(
     f: xr.DataArray,
     g: xr.DataArray,
-    D_f: xr.DataArray = None,
-    D_g: xr.DataArray = None,
-    w_f: xr.DataArray = None,
-    w_g: xr.DataArray = None,
     dims: Sequence[Hashable] = ("lat", "lon"),
 ) -> xr.Dataset:
     """
@@ -51,18 +47,14 @@ def decompose_discrete_full(
           D_intersect
     """
     # --- set defaults ---
-    if w_f is None:
-        w_f = xr.ones_like(f)
-    if w_g is None:
-        w_g = xr.ones_like(g)
+    w_f = xr.ones_like(f)
+    w_g = xr.ones_like(g)
 
     # full‐domain mask over provided dims
     coords = {d: f.coords[d] for d in dims}
     
-    if D_f is None:
-        D_f = ~np.isnan(f)
-    if D_g is None:
-        D_g = ~np.isnan(g)
+    D_f = ~np.isnan(f)
+    D_g = ~np.isnan(g)
 
     # --- perturbations ---
     df = g - f
@@ -76,12 +68,11 @@ def decompose_discrete_full(
     # helper to sum only where mask is True
     def integrate(field: xr.DataArray, mask: xr.DataArray) -> xr.DataArray:
         return field.where(mask).sum(dim=dims)
-
+    print("hello")
     # 1) Domain shift, same weights and integrand
-    domain_shift = (
-        integrate(f * w_f, D_g_minus_f)
-      - integrate(f * w_f, D_f_minus_g)
-    )
+    domain_shift_loss = integrate(-f * w_f, D_f_minus_g)
+
+    domain_shift_gain = integrate(g * w_g, D_g_minus_f)
     # 1) is equivalent to:   
     # domain_shift = (
     #     integrate(f * w_f, D_g)
@@ -90,26 +81,11 @@ def decompose_discrete_full(
     # 2) Flux change on overlap
     integrand_change = integrate(df * w_f, D_intersect)
 
-    # 3) Weight change on overlap
-    weight_change = integrate(f * dw, D_intersect)
-
-    # 4) Cross‑overlap interaction stemming from changes in weights and integrand over shared region
-    overlap_interaction = integrate(df * dw, D_intersect)
-
-    # 5) Flux & weight change on new area
-    new_domain_interaction = (
-        integrate(df * w_f,  D_g_minus_f)
-      + integrate(f  * dw,    D_g_minus_f)
-      + integrate(df * dw,    D_g_minus_f)
-    )
-
     # totals
     reconstructed_total = (
-        domain_shift
-      + integrand_change
-      + weight_change
-      + overlap_interaction
-      + new_domain_interaction
+        integrand_change
+      + domain_shift_gain
+      + domain_shift_loss
     )
 
     integrate_g_wg = integrate(g * w_g, D_g)
@@ -121,11 +97,9 @@ def decompose_discrete_full(
     )
     
     return xr.Dataset({
-        "domain_shift":           domain_shift,
+        "domain_shift_gain":           domain_shift_gain,
+        "domain_shift_loss":domain_shift_loss, 
         "integrand_change":       integrand_change,
-        "weight_change":          weight_change,
-        "overlap_interaction":    overlap_interaction,
-        "new_domain_interaction": new_domain_interaction,
         "reconstructed_total":       reconstructed_total,
         "true_total":           true_total,
         "D_f_minus_g":        D_f_minus_g,
