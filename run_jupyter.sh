@@ -18,11 +18,11 @@ echo -e "
 For more info and how to connect from windows,
 see https://docs.ycrc.yale.edu/clusters-at-yale/guides/jupyter/
 MacOS or linux terminal command to create your ssh tunnel
-ssh -N -f -L ${port}:${node}:${port} ${user}@poseidon.whoi.edu
+ssh -N -f -L ${port}:${node}:${port} ${user}@hydra.whoi.edu
 Windows MobaXterm info
 Forwarded port:same as remote port Remote server: ${node}
 Remote port: ${port}
-SSH server: poseidon.whoi.edu
+SSH server: hydra.whoi.edu
 SSHlogin: $user
 SSH port: 22
 Use a Browser on your local machine to go to: localhost:${port} (prefix w/ https:// if using password) "

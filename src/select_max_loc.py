@@ -12,23 +12,7 @@ def select_from_location(ds, ds_loc, dim = "sigma2_l_target"):
         results[exp] = xr.concat(exp_data, dim="year")
     
     return xr.concat(list(results.values()), dim="exp")
-
-def select_from_location2(ds: xr.Dataset, ds_loc: xr.Dataset, dim="sigma2_l_target") -> xr.Dataset:
-    """
-    Lazily select data from locations stored in ds_loc along `dim`,
-    for each exp/year in ds.
-    """
-    if len(ds_loc.data_vars) != 1:
-        raise ValueError("ds_loc should contain exactly one variable with the target locations.")
     
-    loc_var = list(ds_loc.data_vars)[0]
-    target = ds_loc[loc_var]
-
-    # Ensure target has same exp/year coords and order as ds
-    target = target.reindex_like(ds.isel({dim: 0}))
-
-    # Vectorized selection
-    return ds.sel({dim: target})
     
 def select_from_yearly_location_monthly(ds, ds_loc, dim = "sigma2_l_target"):
     """Select monthly data from maximum locations in control and forced experiments."""

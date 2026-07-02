@@ -68,7 +68,6 @@ def decompose_SWMT_spatial(
     # helper to sum only where mask is True
     def integrate(field: xr.DataArray, mask: xr.DataArray) -> xr.DataArray:
         return field.where(mask).sum(dim=dims)
-    print("hello")
     # 1) Domain shift, same weights and integrand
     domain_shift_loss = integrate(-f * w_f, D_f_minus_g)
 
