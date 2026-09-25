@@ -1,4 +1,4 @@
-DOI: 10.5281/zenodo.22953456
+[![DOI](https://zenodo.org/badge/1046451533.svg)](https://doi.org/10.5281/zenodo.22952876)
 
 # Dense Shelf Water Surface Water Mass Transformation in CM4X
 
