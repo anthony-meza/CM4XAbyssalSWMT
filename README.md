@@ -25,7 +25,8 @@ Each figure notebook reads the products above and saves its figures to `figures/
 - `fig10-12_weddell.ipynb` covers the Weddell Sea transect (Figures 10–12).
 - `figS01-S02_surface_fluxes.ipynb` makes the surface flux maps in the Supporting Information (Figures S1–S2).
 
-The coarsened CM4X output used in this analysis can be regenerated from the native model output with [CM4Xutils](https://github.com/hdrake/CM4Xutils).
+The coarsened CM4X output used in this analysis can be regenerated from the native model output with [CM4Xutils](https://github.com/hdrake/CM4Xutils). 
+Water mass transformation budgets are calculated using [xwmb](https://github.com/hdrake/xwmb).
 
 ## Environment
 
