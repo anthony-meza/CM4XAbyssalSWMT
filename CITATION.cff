@@ -1,0 +1,34 @@
+cff-version: 1.2.0
+message: "If you use this code, please cite it using the metadata below, and cite the accompanying paper."
+type: software
+title: "Code for: Sea ice-driven decline of abyssal ocean ventilation in an eddy-permitting coupled climate model"
+abstract: >-
+  Code that computes water mass transformation budgets of Dense Shelf Water
+  on the Antarctic Continental Shelf in the GFDL CM4X climate model and
+  reproduces the analysis and figures in the accompanying paper.
+authors:
+  - given-names: Anthony
+    family-names: Meza
+  - given-names: Henri
+    family-names: Drake
+  - given-names: Geoffrey
+    family-names: Gebbie
+repository-code: "https://github.com/anthony-meza/CM4XAbyssalSWMT"
+license: MIT
+keywords:
+  - water mass transformation
+  - Dense Shelf Water
+  - Antarctic Bottom Water
+  - sea ice
+  - CM4X
+preferred-citation:
+  type: article
+  title: "Sea ice-driven decline of abyssal ocean ventilation in an eddy-permitting coupled climate model"
+  authors:
+    - given-names: Anthony
+      family-names: Meza
+    - given-names: Henri
+      family-names: Drake
+    - given-names: Geoffrey
+      family-names: Gebbie
+  journal: "Journal of Geophysical Research: Oceans"
