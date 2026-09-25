@@ -1,3 +1,5 @@
+DOI: 10.5281/zenodo.22953456
+
 # Dense Shelf Water Surface Water Mass Transformation in CM4X
 
 This repository contains the code for "Sea ice-driven decline of abyssal ocean ventilation in an eddy-permitting coupled climate model" by Anthony Meza, Henri Drake, and Geoffrey Gebbie (in preparation for *JGR: Oceans*). It computes water mass transformation (WMT) budgets of Dense Shelf Water (DSW) on the Antarctic Continental Shelf (ACS) in the GFDL CM4X climate model and reconstructs the analysis and figures in the paper.
