@@ -9,3 +9,12 @@ CimoliData
 *.ipynb_checkpoints
 *.mp4
 *pycache*
+*.tex
+figure_map.txt
+logs/
+.pytest_cache
+.ipynb_checkpoints
+*.zip
+run_jupyter.sh
+notebooks/archive/
+figures/archive/
